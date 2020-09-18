@@ -44,7 +44,6 @@ dev fullscreen not and mswin and [if]
     go
 ;
 : cold
-    ." Hemlo" cr
     warm
     [ dev not ] [if] shutdown [else] quit [then]
 ;

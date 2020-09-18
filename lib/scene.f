@@ -1,6 +1,6 @@
 
 require lib/filelib.f
-require utils.f
+require lib/utils.f
 require lib/a.f
 
 256 256 plane: bgp1 1 tm.bmp#! ;plane

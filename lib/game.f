@@ -32,10 +32,10 @@ dev [if]
 
 \ ------------------------------------------------------------------------
 
-include allegro-5.2.5.f
+include lib/allegro-5.2.5.f
 
-: require  get-order depth >R require depth R> >
-    abort"  Stack item(s) left behind" set-order ;
+\ : require  get-order depth >R require depth R> >
+\     abort"  Stack item(s) left behind" set-order ;
 
 
 320 value vieww
@@ -425,7 +425,7 @@ constant /TILEMAP
 
 \ ---------------------------------------------------------------
 dev [if]
-    mswin [if] include counter [then]
+    mswin [if] include lib/counter [then]
     
     mswin [if]
         extern void * GetForegroundWindow( );

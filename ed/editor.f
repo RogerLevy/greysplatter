@@ -21,8 +21,6 @@ require ed/tileutils.f
 : ext: postpone \\ ;
 : frnd  65535e f* f>s choose s>f 65535e f/ ;
 
-
-\ 0 value tile#
 true value info
 0 value scene#
 0 value layer#
@@ -172,11 +170,10 @@ create tsel /tilemap /allot     \ describes selection source
 ;
 
 : load-data
-    s" editor.ext.f" FileExist? if s" require editor.ext.f" evaluate then
-    s" data.f" included
-    load-prefabs
-    s" scenes.f" included
-    scene# load
+\    s" editor.ext.f" FileExist? if s" require editor.ext.f" evaluate then
+\    s" data.f" FileExist? if s" data.f" included then
+\    load-prefabs
+\    scene# load
 ;
 
 
