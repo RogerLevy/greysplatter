@@ -11,3 +11,4 @@
 : pconstant  constant ;
 : pround  p>f fround f>p ;
 : pfloor  $ffff0000 and ;
+: 2p p swap p swap ;

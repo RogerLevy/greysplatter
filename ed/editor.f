@@ -6,9 +6,8 @@ include lib/roger.f
 include lib/stackarray.f
 include lib/game.f
 
-require lib/scene.f
-require lib/script.f
-
+require ed/script.f
+require ed/scene.f
 require ed/undo.f
 require ed/a.f
 require ed/strout.f
@@ -35,7 +34,7 @@ defer objed-ext   \ adds additional events to the OBJED mode
     ' noop is objed-ext
 
 defer render-sprites
-    ' paint is render-sprites
+:noname  0 max-objects paint ;  is render-sprites
 
 create tile-selection 0 , 0 , 1 , 1 ,  \ col , row , #cols , #rows , 
 
@@ -65,7 +64,7 @@ create tsel /tilemap /allot     \ describes selection source
 
 : the-scene  scene# scene ;
 : the-layer  scene# scene [[ layer# s.layer ]] ;
-: the-plane  layer# bgp ;
+: the-plane  layer# bgplane ;
 : the-base   the-plane 's tm.base ;
 : the-stride the-plane 's tm.stride ;
 : the-bmp#   the-plane 's tm.bmp# ;
@@ -104,9 +103,9 @@ create tsel /tilemap /allot     \ describes selection source
     tm.th * tm.h!  tm.tw * tm.w! ]] ;
 
 : select-tiles ( col row cols rows )
-    tsel-plane# bgp tsel /tilemap move
+    tsel-plane# bgplane  tsel /tilemap move
     layer# to tsel-plane#  tsel resize-tilemap
-    tsel-plane# bgp [[ ( row ) tm.stride * swap ( col ) cells + tm.base + ]]
+    tsel-plane# bgplane  [[ ( row ) tm.stride * swap ( col ) cells + tm.base + ]]
         tsel [[ tm.base! ]]
 ;
 
@@ -139,7 +138,51 @@ create tsel /tilemap /allot     \ describes selection source
 : fill-tiles 
     the-tile
         tsel [[ tm.cols cells tm.rows ]] the-plane 's tm.stride tile# 2tfill ;
+
+
+: selw*  tile-selection 2 cells + @ * ;
+: selh*  tile-selection 3 cells + @ * ;
+        
+
+: draw-cursor  
+    the-plane [[ 
+        tile-selection 2@ swap tilexy scroll- over s>f dup s>f
+        swap tm.tw selw* + s>f  tm.th selh* + s>f
+        0e 0e 0e 0.5e al_draw_filled_rectangle ]]
+\    tile#  the-plane
+\        maus 2s>f colrow tilexy scroll- 1e f- fswap 1e f- fswap draw-tile
     
+    shift? not if
+        tbrush [[
+            the-plane 's tm.bmp# tm.bmp#!
+            the-plane 's tm.tw tm.tw!
+            the-plane 's tm.th tm.th!
+            the-plane [[ maus colrow tilexy scroll- 1 1 2- ]] 2p xy!
+            tilemap-draw ]]    
+    then
+;
+
+: +sel  ( x y )
+    swap tile-selection 8 + 2@ 2+ 1 max 128 min swap 1 max 128 min swap tile-selection 8 + 2! ;
+                
+
+: tw  the-plane 's tm.tw ;
+: th  the-plane 's tm.th ;
+
+
+: ?refresh
+    the-bmp# bitmap @ 0= if exit then
+    the-bmp# zbmp-file mtime@
+        the-bmp# bmp-mtime @   > if 50 ms load-data then
+;
+
+
+: pan
+    walt scrolly swap 2 / - 0 max the-scene 's s.h viewh - min scrolly!
+         scrollx swap 2 / - 0 max the-scene 's s.w vieww - min scrollx!
+;
+
+
 
 : load  ( scene# )
     to scene#
@@ -170,10 +213,10 @@ create tsel /tilemap /allot     \ describes selection source
 ;
 
 : load-data
-\    s" editor.ext.f" FileExist? if s" require editor.ext.f" evaluate then
-\    s" data.f" FileExist? if s" data.f" included then
-\    load-prefabs
-\    scene# load
+    s" editor.ext.f" FileExist? if s" require editor.ext.f" evaluate then
+    s" data.f" FileExist? if s" data.f" included then
+    load-prefabs
+    scene# load
 ;
 
 
@@ -185,7 +228,7 @@ create tsel /tilemap /allot     \ describes selection source
             l.zstm @ if
                 l.zstm newfile[
                     s" STMP" write 
-                    i bgp [[
+                    i bgplane  [[
                         tm.cols sp@ 2 write drop
                         tm.rows sp@ 2 write drop
                         tm.base tm.stride tm.rows * write
@@ -207,53 +250,6 @@ create tsel /tilemap /allot     \ describes selection source
     256 256 * 0 do 8 rnd 4 rnd pack-tile !+ loop
 ;
 randomize
-
-: selw*  tile-selection 2 cells + @ * ;
-: selh*  tile-selection 3 cells + @ * ;
-        
-: 2p p swap p swap ;
-: draw-cursor  
-    the-plane [[ 
-        tile-selection 2@ swap tilexy scroll- over s>f dup s>f
-        swap tm.tw selw* + s>f  tm.th selh* + s>f
-        0e 0e 0e 0.5e al_draw_filled_rectangle ]]
-\    tile#  the-plane
-\        maus 2s>f colrow tilexy scroll- 1e f- fswap 1e f- fswap draw-tile
-    
-    shift? not if
-        tbrush [[
-            the-plane 's tm.bmp# tm.bmp#!
-            the-plane 's tm.tw tm.tw!
-            the-plane 's tm.th tm.th!
-            the-plane [[ maus colrow tilexy scroll- 1 1 2- ]] 2p xy!
-            draw-as-tilemap ]]    
-    then
-;
-
-: +sel  ( x y )
-    swap tile-selection 8 + 2@ 2+ 1 max 128 min swap 1 max 128 min swap tile-selection 8 + 2! ;
-                
-
-: tw  the-plane 's tm.tw ;
-: th  the-plane 's tm.th ;
-
-: ?refresh
-    the-bmp# zbmp-file mtime@ the-bmp# bmp-mtime @ > if 50 ms load-data then
-;
-
-: pan
-    walt scrolly swap 2 / - 0 max the-scene 's s.h viewh - min scrolly!
-         scrollx swap 2 / - 0 max the-scene 's s.w vieww - min scrollx!
-;
-
-: draw-plane  ( plane - ) 
-    [[ scrollx tm.scrollx! scrolly tm.scrolly! draw-as-tilemap ]] ;
-
-: draw-parallax ( plane - )
-    dup the-scene 's s.layer >r
-    bgp [[ scrollx r@ 's l.parax p* tm.scrollx!
-           scrolly r> 's l.paray p* tm.scrolly! draw-as-tilemap ]]
-;
 
 
 :while maped update
@@ -513,7 +509,7 @@ randomize
     
     <a> pressed ctrl? and if
         ctr
-        maus at prefab# one-object to selected
+        maus at prefab# instance to selected
         selected ?snap
     then
     

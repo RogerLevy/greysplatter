@@ -1,8 +1,4 @@
 
-synonym | locals|
-synonym & addr immediate
-: ]#  ] postpone literal ;
-
 : bmpw  al_get_bitmap_width ;
 : bmph  al_get_bitmap_height ;
 
@@ -11,15 +7,15 @@ synonym & addr immediate
 
 create zbuf  256 allot
 : z$   zcount zbuf zplace  zbuf ;
-: z+   swap >r zcount r@ zappend r> ;
+: +z   swap >r zcount r@ zappend r> ;
 : s>z  zbuf zplace  zbuf ;
 
 also system
 : +z"  
-  [char] " parse >SyspadZ z+
+  [char] " parse >SyspadZ +z
 ;
 ndcs: ( -- )
-    postpone (z")  [char] " parse z$,  postpone z+ 
+    postpone (z")  [char] " parse z$,  postpone +z 
     discard-sinline  ;
 previous
 

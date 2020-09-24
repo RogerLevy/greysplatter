@@ -3,12 +3,14 @@ require lib/filelib.f
 require lib/utils.f
 require lib/a.f
 
-256 256 plane: bgp1 1 tm.bmp#! ;plane
-256 256 plane: bgp2 1 tm.bmp#! ;plane
-256 256 plane: bgp3 1 tm.bmp#! ;plane
-256 256 plane: bgp4 1 tm.bmp#! ;plane
-create bgplanes bgp1 , bgp2 , bgp3 , bgp4 ,
-: bgp  cells bgplanes + @ ;
+256 256 plane: bgplane 1 1 tm.bmp#! ;plane
+256 256 plane: bgplane 2 1 tm.bmp#! ;plane
+256 256 plane: bgplane 3 1 tm.bmp#! ;plane
+256 256 plane: bgplane 4 1 tm.bmp#! ;plane
+
+create bgplanes bgplane1 , bgplane2 , bgplane3 , bgplane4 ,
+
+: bgplane   cells bgplane lanes + @ ;
 
 1024 cells constant /tileattrs 
 
@@ -81,8 +83,10 @@ constant /SCENE
 ;
 
 : clear-tilemap  ( tilemap -- )
-    [[ tm.base  tm.rows tm.stride *  erase  ]] ;
-
+    [[ tm.base  tm.rows tm.stride * bounds do
+        -1 i !
+    cell +loop ]] ;
+ 
 : clear-objects  ( -- )
     0 object  [ lenof object /objslot * ]# erase ;
 
@@ -90,7 +94,7 @@ constant /SCENE
     >in @ >r
     dup constant scene [[
     r> >in ! bl parse s>z s.zname!
-    [ bgp1 's tm.cols 16 * ]# dup s.w! s.h!
+    [ 0 bgplane 's tm.cols 16 * ]# dup s.w! s.h!
     4 0 do i s.layer [[ init-layer ]] loop
 ;
 
@@ -103,10 +107,10 @@ constant /SCENE
     's l.bmp# zbmp-file zcount 4 - s>z +z" .tad" ;
 
 : [load-tm]  {: i :}
-    l.zstm @  l.zstm zcount FileExist?  and if
-        l.zstm i bgp load-stm
+    l.zstm c@ 0<>  l.zstm zcount FileExist?  and if
+        l.zstm i bgplane  load-stm
     else
-        i bgp [[
+        i bgplane  [[
             256 tm.cols! 256 tm.rows!
             256 cells tm.stride!
             me clear-tilemap
@@ -128,7 +132,7 @@ constant /SCENE
 : load  ( n )
     scene [[
         4 0 do i s.layer [[
-            l.tw l.th i bgp [[ tm.th! tm.tw! ]]
+            l.tw l.th i bgplane  [[ tm.th! tm.tw! ]]
             i [load-tm]
             \ [load-tad]
         ]] loop

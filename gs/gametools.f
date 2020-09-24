@@ -1,7 +1,6 @@
-
-synonym | locals|
-synonym & addr immediate
-: ]#  ] postpone literal ;
+: black  0e 0e 0e fcolor 1e falpha ;
+: grey   0.5e 0.5e 0.5e fcolor 1e falpha ;
+: keycode alevt KEYBOARD_EVENT.keycode @ ;
 
 : bmpw  al_get_bitmap_width ;
 : bmph  al_get_bitmap_height ;
@@ -10,13 +9,13 @@ synonym & addr immediate
 : tm.scroll!  tm.scrolly! tm.scrollx! ;
 
 create zbuf  256 allot
-: z$   ( zstr - zstr ) zcount zbuf zplace  zbuf ;
-: +z   ( a n zstr - zstr ) swap >r zcount r@ zappend r> ;
-: s>z  ( a n - zstr ) zbuf zplace  zbuf ;
+: z$   zcount zbuf zplace  zbuf ;
+: +z   swap >r zcount r@ zappend r> ;
+: s>z  zbuf zplace  zbuf ;
 
 also system
-: +z"  ( zstr - string" zstr ) 
-  [char] " parse >SyspadZ z+
+: +z"  
+  [char] " parse >SyspadZ +z
 ;
 ndcs: ( -- )
     postpone (z")  [char] " parse z$,  postpone +z 
@@ -53,3 +52,16 @@ create pen 0 , 0 ,
 
 : near?  ( obj n - f )
     over if >r 's xy xy pdist r> p <= else drop then ;
+
+
+: bmpwh dup al_get_bitmap_width swap al_get_bitmap_height ;
+: lb-pressed ms1 1 al_mouse_button_down 0= ms0 1 al_mouse_button_down 0<> and ;
+: lb-letgo  ms1 1 al_mouse_button_down 0<> ms0 1 al_mouse_button_down 0= and ; 
+
+: clear-tilemap  ( tilemap -- )
+    [[ tm.base  tm.rows tm.stride * bounds do
+        -1 i !
+    cell +loop ]] ;
+
+: clear-objects  ( i n -- )
+    swap object swap /objslot * erase ;

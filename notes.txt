@@ -1,0 +1,73 @@
+
+Advanced Editor Idea (9/20/20)
+------------------------------
+
+object list files and prefab definition files will be human-readable
+scripts. 
+
+this has obvious advantages
+    - future compatibility
+    - less error-prone
+    - easier to debug
+    - more freedom to create independently
+    
+the engine needs to change - like the editor, it will need to be able to
+both read and write object list files.  Internally it will keep
+track of bitmaps and prefabs (object types) in a couple of tables.
+
+it's preferable to identify bitmaps and object type #'s with integers.
+this won't have use when saving state - it's just to make things easier
+to work with in the code and (probably) more stable too.  since the
+table are constructed automatically, the id's of these prefabs and
+bitmaps can't be guaranteed across sessions.
+
+bitmaps and prefabs will always have to be referenced by name in storage.
+prefabs will use the convention `[prefab]` and bitmaps will use the
+convention `filename.ext`.  These identifiers will be defined in the
+dictionary for easy reference.
+
+If you want to organize bitmaps further within data/bitmaps/, the
+identifier will include the relative path, i.e. `tilesets/filename.ext`
+
+not much information needs to be specified in the object list file
+    prefab
+    sprite info
+    position
+    scale/rotation
+    id
+    any custom information (as value/offset pairs?)
+    
+    
+tilesets need to be placed in bitmap slots 0-63 so that they can work
+with the tile attribute tables.  otherwise how that works would have to be
+rethought and it'll be more complicated.
+
+It should still be possible to load bitmaps at runtime into slots in the
+table, as before.  In the scene file, you'll be able to say that you want to
+load a bitmap into a specific slot rather than have the editor/engine
+automatically search for and load it.
+
+Scenes will be defined in individual scene files instead of one big file.
+The format will be the same except for some utility words for user-
+friendliness.  The index will be removed, now being defined by the game.
+Here's an example:
+scene: test-scene
+    64 16 * s.w!
+    64 16 * s.h! 
+    0 s.layer [[
+        1 4 p/  1 4 p/  parallax
+        tileset: test.tiles.png 16 16 
+        z" data/levels/test.test.layer-1.map001.stm" l.zstm!
+    ]]
+    1 s.layer [[
+        tileset: test.tiles.png 16 16 
+        z" data/levels/test.test.layer-2.map001.stm" l.zstm!
+    ]]
+;scene
+
+
+Here's how the prefab definition file will look.  This is a per-project
+thing.
+prefab: [kevin] sprite: kevin.png 16 16 0
+prefab: [duck]  sprite: duck.png  16 16 0
+

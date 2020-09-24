@@ -56,7 +56,7 @@ create alevt 256 allot&erase
 0 value mwheelx
 0 value mwheely
 
-128 cell array bitmap
+256 cell array bitmap
 256 cell array sample
 max-objects /objslot array object
 
@@ -155,6 +155,8 @@ value /screen
     al_create_builtin_font to bif
 
     ALLEGRO_ADD ALLEGRO_ALPHA ALLEGRO_INVERSE_ALPHA al_set_blender
+    ALLEGRO_DEPTH_TEST 0 al_set_render_state
+    ALLEGRO_ALPHA_TEST 0 al_set_render_state
 ;
 
 : etype  ( - ALLEGRO_EVENT_TYPE )  alevt ALLEGRO_EVENT.type @ ;
@@ -196,31 +198,36 @@ value /screen
 0
     pgetset x x!  \ x pos
     pgetset y y!  \ y pos
-    getset ix ix!
-    getset iy iy! 
-    getset attr attr! \ attributes ---- ---- ---- --VH ---- hhhh ---w wwww
     getset en en!
-    getset bmp# bmp#!
+    getset objtype objtype!
     getset id id!
-value /OBJECT
+    getset attr attr! \ attributes ---- ---- ---- ---- ---- ---- ---- --VH
+constant /object    
 
 : xy  x y ;
 : xy!  y! x! ;
-: iw  attr $1f and 1 + 4 lshift ;
-: ih  attr $f00 and 8 rshift 1 + 4 lshift ;
-: flip  attr $3000 and 12 rshift ;
-: flip! 12 lshift attr [ $3000 invert ]# and or attr! ;
 : init-object  0 0 xy!  1 en! ;
+: flip  attr $3 and ;
+: flip! attr [ $3 invert ]# and or attr! ;
+
+/object
+    getset bmp# bmp#!
+    getset ix ix!
+    getset iy iy! 
+    getset iw iw!
+    getset ih ih!
+value /sprite
 
 screen game
 game
 0 object to me
 
-: object>i  ( adr - n )
-    0 object - /objslot / ;
+( not the ID, just the index in the table )
+: object>i  ( adr - n )    0 object - /objslot / ;
 
-: button  ( n - n )
-    kbs0 swap al_key_down ;
+: button  ( n - n )    kbs0 swap al_key_down ;
+
+: >albmp  bitmap @ ;
 
 : ?loadbmp  ( var zstr )
     dup 0= if swap ! exit then
@@ -280,7 +287,7 @@ game
     strm mixer al_attach_audio_stream_to_mixer drop
 ;
 
-: streamloop  ALLEGRO_PLAYMODE_LOOP stream ;
+: lstream  ALLEGRO_PLAYMODE_LOOP stream ;
 
 : fcolor  ( f: r g b )  to fgb to fgg to fgr ;
 : falpha  ( f: a )  to fga ;
@@ -290,15 +297,6 @@ game
         ix s>f iy s>f iw s>f ih s>f
         x pfloor p>f y pfloor p>f flip al_draw_bitmap_region
     then
-;
-
-: paint ( - )
-    1 al_hold_bitmap_drawing
-    max-objects 0 do
-        i object as
-        en if draw then
-    loop
-    0 al_hold_bitmap_drawing
 ;
 
 : 2x
@@ -358,14 +356,12 @@ constant /TILEMAP
 : tm-vrows  tm.h tm.th / 1 + ;
 : tm-vcols  tm.w tm.tw / 1 + ;
 
-: draw-as-tilemap  ( - )
+: tilemap-draw  ( - )
     tm.bmp# bitmap @
     0 | t b |
     b 0= if exit then
     tm.base 0= if exit then
     b al_get_bitmap_width tm.tw / to tcols
-    
-    1 al_hold_bitmap_drawing
     
     x p>s to dx  y p>s to dy
     
@@ -376,6 +372,8 @@ constant /TILEMAP
     dx tm.scrollx tm.tw mod - to dx
     dy tm.scrolly tm.th mod - to dy
     dx to rx
+
+    1 al_hold_bitmap_drawing
     
     tm.base
         tm.scrollx tm.tw / cells +
@@ -419,8 +417,16 @@ constant /TILEMAP
 
 \ ---------------------------------------------------------------
 
+: paint ( i n - )
+    1 al_hold_bitmap_drawing
+    bounds do
+        i object as  en if draw then
+    loop
+    0 al_hold_bitmap_drawing
+;
+
 :while game update
-    2x 0e 0e 0e 1e fcolor cls paint
+    2x 0.25e 0e 0.5e fcolor 1e falpha cls 0 max-objects paint
 ;
 
 \ ---------------------------------------------------------------

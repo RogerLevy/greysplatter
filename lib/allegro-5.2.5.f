@@ -2599,7 +2599,7 @@ extern "C" void * al_create_mixer( int rate, int depth, int conf );
 \ extern "C" al_create_mouse_cursor( );
 \ extern "C" al_create_mutex( );
 \ extern "C" al_create_mutex_recursive( );
-\ extern "C" al_create_native_file_dialog( );
+extern "C" void * al_create_native_file_dialog( char *initial_path, char *title, char *patterns, int mode );
 \ extern "C" al_create_path( );
 \ extern "C" al_create_path_for_directory( );
 \ extern "C" al_create_popup_menu( );
@@ -2628,7 +2628,7 @@ extern "C" void al_destroy_fs_entry( void * entry );
 \ extern "C" al_destroy_mixer( );
 \ extern "C" al_destroy_mouse_cursor( );
 \ extern "C" al_destroy_mutex( );
-\ extern "C" al_destroy_native_file_dialog( );
+extern "C" void al_destroy_native_file_dialog( void *dialog );
 \ extern "C" al_destroy_path( );
 extern "C" void al_destroy_sample( void * sample );
 \ extern "C" al_destroy_sample_instance( );
@@ -2826,7 +2826,7 @@ extern "C" int al_get_bitmap_width( void * bmp );
 \ extern "C" al_get_clipping_rectangle( );
 \ extern "C" al_get_config_value( );
 \ extern "C" al_get_cpu_count( );
-\ extern "C" al_get_current_directory( );
+extern "C" void * al_get_current_directory( );
 \ extern "C" al_get_current_display( );
 \ extern "C" al_get_current_inverse_transform( );
 \ extern "C" al_get_current_projection_transform( );
@@ -2915,8 +2915,9 @@ extern "C" void * al_get_mouse_event_source( );
 extern "C" void al_get_mouse_state( void * state );
 extern "C" int al_get_mouse_state_axis( void * state, int axis );
 \ extern "C" al_get_mouse_wheel_precision( );
-\ extern "C" al_get_native_file_dialog_count( );
-\ extern "C" al_get_native_file_dialog_path( );
+extern "C" int al_get_native_file_dialog_count( void *dialog );
+extern "C" const char *al_get_native_file_dialog_path(
+   void *dialog, size_t i );
 \ extern "C" al_get_native_text_log_event_source( );
 \ extern "C" al_get_new_bitmap_depth( );
 \ extern "C" al_get_new_bitmap_flags( );
@@ -3257,7 +3258,7 @@ extern "C" void al_set_new_display_option( int option, int value, int importance
 \ extern "C" al_set_path_extension( );
 \ extern "C" al_set_path_filename( );
 \ extern "C" al_set_physfs_file_interface( );
-\ extern "C" al_set_render_state( );
+extern "C" void al_set_render_state( void * state, int value );
 \ extern "C" al_set_sample( );
 \ extern "C" al_set_sample_instance_channel_matrix( );
 \ extern "C" al_set_sample_instance_gain( );
@@ -3290,8 +3291,8 @@ extern "C" void al_set_target_bitmap( void * bitmap );
 extern "C" void al_set_window_position( void * display, int x, int y );
 \ extern "C" al_set_window_title( );
 \ extern "C" al_show_mouse_cursor( );
-\ extern "C" al_show_native_file_dialog( );
-\ extern "C" al_show_native_message_box( );
+extern "C" bool al_show_native_file_dialog( void * display, void *dialog );
+extern "C" bool al_show_native_message_box( void * display,    char const *title, char const *heading, char const *text, char const *buttons, int flags );
 \ extern "C" al_shutdown_font_addon( );
 \ extern "C" al_shutdown_image_addon( );
 \ extern "C" al_shutdown_native_dialog_addon( );
@@ -3870,3 +3871,11 @@ enum ALLEGRO_BLEND_OPERATIONS {
    ALLEGRO_NUM_BLEND_OPERATIONS
 };
 
+enum ALLEGRO_RENDER_STATE {
+   ALLEGRO_ALPHA_TEST = 0x0010,
+   ALLEGRO_WRITE_MASK,
+   ALLEGRO_DEPTH_TEST,
+   ALLEGRO_DEPTH_FUNCTION,
+   ALLEGRO_ALPHA_FUNCTION,
+   ALLEGRO_ALPHA_TEST_VALUE
+};

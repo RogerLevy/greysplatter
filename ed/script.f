@@ -1,15 +1,9 @@
-256 constant max-prefabs
-
-/OBJECT
-    getset objtype objtype!
-to /OBJECT
+[undefined] max-prefabs [if] 256 constant max-prefabs [then]
 
 /objslot 128 - constant /userfields  \ For object-specific stuff
 
 max-prefabs /objslot array prefab
 max-prefabs 1024 array sdata  \ static data such as actions
-
-: lastword  last @ ctrl>nfa count ;
 
 : prefab: ( n - <name> ) ( - n )
     dup constant dup prefab [[
