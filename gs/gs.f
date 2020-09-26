@@ -22,7 +22,9 @@ include gs/scene.f
 include gs/project.f
 include gs/tileutils.f
 include gs/screen-maped.f
+include gs/screen-tiles.f
 include gs/screen-objed.f
+include gs/screen-objsel.f
 
 include gs/system.f
 
