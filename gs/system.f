@@ -12,4 +12,5 @@
     \ <s> pressed ctrl? and if save then
     <i> pressed if info not to info then
 \    <s> pressed ctrl? not and if snapping not to snapping then
+    <enter> pressed alt? and if win/fs then
 ;

@@ -3213,7 +3213,7 @@ extern "C" void al_set_clipping_rectangle( int x, int y, int width, int height )
 \ extern "C" al_set_d3d_device_restore_callback( );
 extern "C" bool al_set_default_mixer( void * mixer );
 \ extern "C" al_set_default_voice( );
-\ extern "C" al_set_display_flag( );
+extern "C" bool al_set_display_flag( void * display, int flag, bool value );
 \ extern "C" al_set_display_icon( );
 \ extern "C" al_set_display_icons( );
 \ extern "C" al_set_display_menu( );
@@ -3879,3 +3879,5 @@ enum ALLEGRO_RENDER_STATE {
    ALLEGRO_ALPHA_FUNCTION,
    ALLEGRO_ALPHA_TEST_VALUE
 };
+
+alias: al_toggle_display_flag al_set_display_flag

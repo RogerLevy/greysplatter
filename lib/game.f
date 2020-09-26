@@ -37,7 +37,8 @@ include lib/allegro-5.2.5.f
 \ : require  get-order depth >R require depth R> >
 \     abort"  Stack item(s) left behind" set-order ;
 
-
+960 value winw
+960 value winh
 320 value vieww
 240 value viewh
 0 value display
@@ -138,12 +139,12 @@ value /screen
     [then]
     
     [ fullscreen ] [if]
-        \ ALLEGRO_FULLSCREEN_WINDOW al_set_new_display_flags
-        \ 0 0 al_create_display to display
-        ALLEGRO_FULLSCREEN al_set_new_display_flags
-        640 480 al_create_display to display
+        ALLEGRO_FULLSCREEN_WINDOW al_set_new_display_flags
+        0 0 al_create_display to display
+        \ ALLEGRO_FULLSCREEN al_set_new_display_flags
+        \ 640 480 al_create_display to display
     [else]
-        640 480 al_create_display to display
+        winw winh al_create_display to display
         display 0 0 al_set_window_position
     [then]
     0 to mixer  0 to voice
@@ -309,6 +310,10 @@ game
 : cls 
     fgr fgg fgb 1e al_clear_to_color
 ;
+
+: win/fs
+    display ALLEGRO_FULLSCREEN_WINDOW fullscreen 0= dup to fullscreen
+        al_toggle_display_flag ;
 
 ( -------------------------------------------------------------- )
 
