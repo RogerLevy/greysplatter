@@ -318,7 +318,7 @@ game
 ( -------------------------------------------------------------- )
 
 ( tile format: 000000vh 00000000 nnnnnnnn nnnnnnnn )
-( -1 or $FFFFFFFF means transparent, i.e. a blank space )
+( -1 or $FFFFFFFF means blank )
 
 /OBJECT
     getset tm.w tm.w!              \ display box in pixels 

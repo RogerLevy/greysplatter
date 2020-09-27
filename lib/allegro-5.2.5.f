@@ -3292,7 +3292,7 @@ extern "C" void al_set_window_position( void * display, int x, int y );
 \ extern "C" al_set_window_title( );
 \ extern "C" al_show_mouse_cursor( );
 extern "C" bool al_show_native_file_dialog( void * display, void *dialog );
-extern "C" bool al_show_native_message_box( void * display,    char const *title, char const *heading, char const *text, char const *buttons, int flags );
+extern "C" bool al_show_native_message_box( void * display, char const *title, char const *heading, char const *text, char const *buttons, int flags );
 \ extern "C" al_shutdown_font_addon( );
 \ extern "C" al_shutdown_image_addon( );
 \ extern "C" al_shutdown_native_dialog_addon( );
@@ -3881,3 +3881,11 @@ enum ALLEGRO_RENDER_STATE {
 };
 
 alias: al_toggle_display_flag al_set_display_flag
+
+enum {
+   ALLEGRO_MESSAGEBOX_WARN             = 0x1,
+   ALLEGRO_MESSAGEBOX_ERROR            = 0x2,
+   ALLEGRO_MESSAGEBOX_OK_CANCEL        = 0x4,
+   ALLEGRO_MESSAGEBOX_YES_NO           = 0x8,
+   ALLEGRO_MESSAGEBOX_QUESTION         = 0x10
+};

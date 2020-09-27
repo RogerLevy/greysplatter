@@ -28,12 +28,17 @@ include gs/screen-objsel.f
 
 include gs/system.f
 
+
+: init-game
+    maped    
+    open-project
+    open-scene
+;
+
 include lib/go.f
 
-init-allegro
-maped
-
-open-project
-open-scene
-
-go
+export? [if]
+    savegui gs
+[else]
+    init go
+[then]  \ turnkey (save) breaks reloading
